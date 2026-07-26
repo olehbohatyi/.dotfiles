@@ -16,7 +16,8 @@ bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1 (not stowed — see below)
 git/              .aliases, included from ~/.gitconfig via include.path
-install.sh        Stow installer: bash/zsh/amm/git (macOS/Linux)
+cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
+install.sh        Stow installer: bash/zsh/amm/git/cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
 ```
 
@@ -81,14 +82,34 @@ Login shells (Terminal.app, TTY, `bash -l`) read `.bash_profile`, not
 `.bash_profile` sources `.bashrc` so both get the same prompt/functions.
 Keep all logic in `.bashrc`.
 
+## cli/.clirc — modern CLI tooling
+
+Sourced from both `bash/.bashrc` and `zsh/.zshrc` (guarded by `[ -f
+~/.clirc ]`, since not every machine has run the installer yet). Wires in
+eza/bat/zoxide/fzf/atuin/fd/lazygit as aliases or `eval`'d shell-init
+output. Every block is gated on `command -v <tool>` so a machine missing
+any of them just skips that line instead of breaking the shell — this file
+should never be the reason a fresh clone's shell fails to start.
+
+Debian/Ubuntu package `bat` and `fd` under different binary names
+(`batcat`, `fdfind`) to avoid clashing with unrelated existing packages.
+`.clirc` checks both names; if you add a new tool here, check whether it
+has the same problem before assuming the binary name matches the package
+name.
+
+zoxide/fzf/atuin each need to know which shell they're initializing for
+(`zoxide init bash` vs `zoxide init zsh`). Since this file is shared, it
+branches on `$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than
+duplicating the file per shell.
+
 ## Stow mirrors the filesystem, not git
 
 Stow symlinks whatever's physically on disk, ignoring `.gitignore`. Every
 package has a `.stow-local-ignore` so macOS's `.DS_Store` (regenerated any
 time Finder opens the folder) never gets symlinked into `$HOME`. A
 package-local `.stow-local-ignore` *replaces* Stow's default ignore list
-rather than extending it, so all four files repeat the full pattern set —
-don't trim them to "just the new pattern."
+rather than extending it, so every package repeats the full pattern set —
+don't trim any of them down to "just the new pattern."
 
 ## Merging into a machine that already has dotfiles
 
@@ -106,8 +127,8 @@ one of these flows — it silently drops whichever side didn't win.
 ## Testing changes
 
 ```bash
-bash -n bash/.bashrc bash/.bash_profile install.sh
-zsh -n zsh/.zshrc
+bash -n bash/.bashrc bash/.bash_profile cli/.clirc install.sh
+zsh -n zsh/.zshrc cli/.clirc
 ```
 
 `pwsh` is available locally — use it rather than skipping PowerShell

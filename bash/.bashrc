@@ -14,3 +14,6 @@ else
   PS1="\e[0;31m\u \e[0;90m\w \e[0;31m# \e[0m"
 fi
 export PS1
+
+# Modern CLI tool integration (eza/bat/zoxide/fzf/atuin/...), shared with zsh.
+[ -f "$HOME/.clirc" ] && . "$HOME/.clirc"

@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEFAULT_PACKAGES=(bash zsh amm git)
+DEFAULT_PACKAGES=(bash zsh amm git cli)
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 usage() {
@@ -13,7 +13,7 @@ Usage: ./install.sh [--adopt] [package ...]
 
 Symlinks this repo's config files into $HOME using GNU Stow.
 
-  (no args)   Install all packages: bash zsh amm git
+  (no args)   Install all packages: bash zsh amm git cli
   package...  Install only the named packages, e.g. ./install.sh zsh git
   --adopt     Pull existing real files already in $HOME into the repo
               instead of backing them up. Use this when you want to keep

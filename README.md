@@ -21,7 +21,8 @@ bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1
 git/              .aliases — git aliases, included from ~/.gitconfig
-install.sh        Stow-based installer: bash, zsh, amm, git (macOS/Linux)
+cli/              .clirc — modern CLI tool integration, shared by bash+zsh
+install.sh        Stow-based installer: bash, zsh, amm, git, cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
 ```
 
@@ -41,8 +42,8 @@ brew install stow   # or: sudo apt install stow / sudo dnf install stow
 ./install.sh
 ```
 
-This symlinks `bash/`, `zsh/`, `amm/`, and `git/` into `$HOME` and registers
-`~/.aliases` in your `~/.gitconfig`. Install only a subset with
+This symlinks `bash/`, `zsh/`, `amm/`, `git/`, and `cli/` into `$HOME` and
+registers `~/.aliases` in your `~/.gitconfig`. Install only a subset with
 `./install.sh zsh git`.
 
 **Windows / PowerShell** (any OS running pwsh):
@@ -99,17 +100,35 @@ registers the include automatically; without the installer, run:
 git config --global include.path ~/.aliases
 ```
 
-## Suggested companion tools
+## Modern CLI tools
 
-Not installed by this repo, but pair well with it:
+`cli/.clirc` (sourced by both bash and zsh) auto-wires these in *if
+installed* — nothing breaks if they're not, each one is behind a
+`command -v` check:
 
-**Cross-platform:** [`ripgrep`](https://github.com/BurntSushi/ripgrep) (`rg`),
-[`fzf`](https://github.com/junegunn/fzf), [`bat`](https://github.com/sharkdp/bat),
-[`fd`](https://github.com/sharkdp/fd), [`zoxide`](https://github.com/ajeetdsouza/zoxide),
-[`direnv`](https://direnv.net/), [Neovim](https://neovim.io/).
+| Tool | Effect |
+|---|---|
+| [`eza`](https://github.com/eza-community/eza) | `ls`/`ll`/`la`/`lt` become an `ls` replacement with icons and git status |
+| [`bat`](https://github.com/sharkdp/bat) | `cat` becomes a syntax-highlighting pager |
+| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | `z <partial-name>` jumps to a frecent directory |
+| [`fzf`](https://github.com/junegunn/fzf) | fuzzy Ctrl+R history / Ctrl+T file search |
+| [`atuin`](https://github.com/atuinsh/atuin) | SQLite-backed, fuzzy-searchable shell history |
+| [`fd`](https://github.com/sharkdp/fd) | available as `fd` even on Debian/Ubuntu (packaged as `fdfind` there) |
+| [`lazygit`](https://github.com/jesseduffield/lazygit) | terminal UI for git, aliased to `lzg` (`lg` is already a git alias) |
 
-**macOS / Linux:** [Homebrew](https://brew.sh/), [`eza`](https://github.com/eza-community/eza)
-(a maintained `ls` replacement), [`tmux`](https://github.com/tmux/tmux), `htop`/`btop`.
+Install any of these however you like (`brew install eza`, `apt install
+bat`, ...) and restart your shell — no repo changes needed.
+
+**Not wired in automatically:**
+[`ripgrep`](https://github.com/BurntSushi/ripgrep) (`rg`) — just use it
+directly, no alias needed. [`delta`](https://github.com/dandavison/delta)
+(nicer git diffs) needs a `~/.gitconfig` change
+(`git config --global core.pager delta`), which isn't in `git/.aliases` on
+purpose — setting it unconditionally would break `git diff` on any machine
+where delta isn't installed yet. [`direnv`](https://direnv.net/),
+[Neovim](https://neovim.io/), [`tmux`](https://github.com/tmux/tmux).
+
+**macOS / Linux:** [Homebrew](https://brew.sh/), `htop`/`btop`.
 
 **Windows:** [Windows Terminal](https://github.com/microsoft/terminal),
 [`winget`](https://learn.microsoft.com/en-us/windows/package-manager/winget/) or

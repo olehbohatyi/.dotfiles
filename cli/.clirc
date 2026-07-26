@@ -1,0 +1,46 @@
+# Interactive-shell config shared by bash and zsh (sourced from both
+# .bashrc and .zshrc). Everything here is guarded by `command -v` so a
+# machine missing any of these tools just skips that block instead of
+# breaking the shell — install them whenever you get to it.
+#
+# Debian/Ubuntu package two of these under different binary names (to
+# avoid clashing with unrelated existing packages), so both names are
+# checked: bat -> batcat, fd -> fdfind.
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --icons'
+  alias ll='eza -la --icons --git'
+  alias la='eza -a --icons'
+  alias lt='eza --tree --icons --level=2'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat'
+elif command -v batcat >/dev/null 2>&1; then
+  alias cat='batcat'
+  alias bat='batcat'
+fi
+
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+  alias fd='fdfind'
+fi
+
+if command -v lazygit >/dev/null 2>&1; then
+  alias lzg='lazygit'
+fi
+
+# zoxide/fzf/atuin ship shell-specific init generators; branch on which
+# shell is actually running this file rather than duplicating it per shell.
+if [ -n "$ZSH_VERSION" ]; then
+  _clirc_shell=zsh
+elif [ -n "$BASH_VERSION" ]; then
+  _clirc_shell=bash
+fi
+
+if [ -n "$_clirc_shell" ]; then
+  command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init "$_clirc_shell")"
+  command -v fzf >/dev/null 2>&1 && eval "$(fzf --"$_clirc_shell")"
+  command -v atuin >/dev/null 2>&1 && eval "$(atuin init "$_clirc_shell")"
+fi
+
+unset _clirc_shell
