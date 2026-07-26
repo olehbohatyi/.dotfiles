@@ -1,0 +1,58 @@
+# Git aliases, kept separate from ~/.gitconfig so installing this repo never
+# touches your name/email/signing config. Wire it up with:
+#
+#   git config --global include.path ~/.gitalias
+#
+# (the stow-based install.sh does this automatically). See CLAUDE.md for
+# the reasoning and README.md for install instructions.
+#
+# co/br/ci/st/unstage/last follow the conventions from Pro Git's "Git
+# Aliases" chapter: https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+
+[alias]
+	st = status -sb
+	co = checkout
+	cb = checkout -b
+	sw = switch
+	swc = switch -c
+	br = branch
+	brd = branch -d
+	ci = commit
+	ca = commit --all
+	cm = commit --message
+	cam = commit --all --message
+	amend = commit --amend --no-edit
+	reword = commit --amend
+
+	aa = add --all
+	ap = add --patch
+	unstage = restore --staged --
+	undo = reset --soft HEAD~1
+	discard = checkout --
+
+	last = log -1 HEAD --stat
+	lg = log --graph --oneline --decorate --all
+	ll = log --pretty=format:'%C(yellow)%h%Creset %s %C(cyan)(%an, %ar)%Creset' --graph
+
+	df = diff
+	dfs = diff --staged
+
+	f = fetch
+	fa = fetch --all --prune
+	please = push --force-with-lease
+	up = pull --rebase --autostash
+
+	ss = stash
+	sl = stash list
+	sp = stash pop
+
+	rbi = rebase -i
+	rbc = rebase --continue
+	rba = rebase --abort
+
+	aliases = config --get-regexp ^alias\\.
+
+	# List local branches already merged into the current one, excluding
+	# main/master/develop so a cleanup pass can't delete them by accident.
+	merged-branches = "!git branch --merged | grep -vE '^\\*|main|master|develop'"
+	cleanup = "!git branch --merged | grep -vE '^\\*|main|master|develop' | xargs -n 1 git branch -d"
