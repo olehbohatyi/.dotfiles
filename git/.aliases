@@ -1,7 +1,7 @@
 # Git aliases, kept separate from ~/.gitconfig so installing this repo never
 # touches your name/email/signing config. Wire it up with:
 #
-#   git config --global include.path ~/.gitalias
+#   git config --global include.path ~/.aliases
 #
 # (the stow-based install.sh does this automatically). See CLAUDE.md for
 # the reasoning and README.md for install instructions.

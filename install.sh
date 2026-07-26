@@ -82,8 +82,8 @@ done
 stow -v -d "$DOTFILES_DIR" -t "$HOME" "${packages[@]}"
 
 if [[ " ${packages[*]} " == *" git "* ]]; then
-  git config --global include.path "$HOME/.gitalias"
-  echo "Registered ~/.gitalias in ~/.gitconfig (include.path)."
+  git config --global include.path "$HOME/.aliases"
+  echo "Registered ~/.aliases in ~/.gitconfig (include.path)."
 fi
 
 if $backed_up; then
