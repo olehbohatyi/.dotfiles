@@ -1,0 +1,1 @@
+def clearHistory = os.remove(os.home / ".ammonite" / "history")
