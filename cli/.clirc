@@ -29,7 +29,7 @@ if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd='fdfind'
 fi
 
-# zoxide/fzf ship shell-specific init generators; branch on which shell is
+# zoxide ships a shell-specific init generator; branch on which shell is
 # actually running this file rather than duplicating it per shell.
 # zoxide adds `z` as a new command rather than overriding `cd` itself
 # (deliberate — `zoxide init --cmd cd` exists if you ever want that instead).
@@ -41,7 +41,6 @@ fi
 
 if [ -n "$_clirc_shell" ]; then
   command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init "$_clirc_shell")"
-  command -v fzf >/dev/null 2>&1 && eval "$(fzf --"$_clirc_shell")"
 fi
 
 unset _clirc_shell

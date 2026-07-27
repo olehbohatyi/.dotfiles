@@ -15,5 +15,5 @@ else
 fi
 export PS1
 
-# Modern CLI tool integration (eza/bat/zoxide/fzf/fd), shared with zsh.
+# Modern CLI tool integration (bat/eza/fd/rg/zoxide), shared with zsh.
 [ -f "$HOME/.clirc" ] && . "$HOME/.clirc"

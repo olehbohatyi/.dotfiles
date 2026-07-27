@@ -15,7 +15,7 @@ amm/.ammonite/    Ammonite predef: helper.sc, import.sc, predef.sc
 bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1 (not stowed — see below)
-git/              .aliases, .delta — both included from ~/.gitconfig via include.path
+git/              .aliases — included from ~/.gitconfig via include.path
 cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
 install.sh        Stow installer: bash/zsh/amm/git/cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -31,12 +31,9 @@ static symlink target — `install.ps1` handles it. Never hardcode a profile
 path; PowerShell's own `$PROFILE` already accounts for edition/OS and
 Documents-folder redirection.
 
-`git/.aliases` and `git/.delta` are include fragments (`git config --global
-include.path ~/.aliases`, and separately `~/.delta`), not a full
-`.gitconfig` — never let either own `user.name`/`user.email`/signing
-config. `.delta` is deliberately *not* auto-registered by `install.sh` the
-way `.aliases` is: setting `core.pager = delta` unconditionally would break
-`git diff` on a machine without delta installed, so it's opt-in only.
+`git/.aliases` is an include fragment (`git config --global include.path
+~/.aliases`), not a full `.gitconfig` — never let it own
+`user.name`/`user.email`/signing config.
 
 ## The shared prompt
 
@@ -89,10 +86,10 @@ Keep all logic in `.bashrc`.
 
 Sourced from both `bash/.bashrc` and `zsh/.zshrc` (guarded by `[ -f
 ~/.clirc ]`, since not every machine has run the installer yet). Wires in
-eza/bat/zoxide/fzf/fd as aliases or `eval`'d shell-init
-output. Every block is gated on `command -v <tool>` so a machine missing
-any of them just skips that line instead of breaking the shell — this file
-should never be the reason a fresh clone's shell fails to start.
+bat/eza/fd/rg/zoxide as aliases or `eval`'d shell-init output. Every block is
+gated on `command -v <tool>` so a machine missing any of them just skips
+that line instead of breaking the shell — this file should never be the
+reason a fresh clone's shell fails to start.
 
 Debian/Ubuntu package `bat` and `fd` under different binary names
 (`batcat`, `fdfind`) to avoid clashing with unrelated existing packages.
@@ -100,10 +97,10 @@ Debian/Ubuntu package `bat` and `fd` under different binary names
 has the same problem before assuming the binary name matches the package
 name.
 
-zoxide/fzf each need to know which shell they're initializing for
-(`zoxide init bash` vs `zoxide init zsh`). Since this file is shared, it
-branches on `$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than
-duplicating the file per shell.
+zoxide needs to know which shell it's initializing for (`zoxide init bash`
+vs `zoxide init zsh`). Since this file is shared, it branches on
+`$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than duplicating the
+file per shell.
 
 ## Stow mirrors the filesystem, not git
 

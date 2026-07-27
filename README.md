@@ -20,7 +20,7 @@ amm/.ammonite/    Ammonite REPL predef: helper.sc, import.sc, predef.sc
 bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1
-git/              .aliases, .delta — git config fragments, included from ~/.gitconfig
+git/              .aliases — git config fragment, included from ~/.gitconfig
 cli/              .clirc — modern CLI tool integration, shared by bash+zsh
 install.sh        Stow-based installer: bash, zsh, amm, git, cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -100,22 +100,6 @@ registers the include automatically; without the installer, run:
 git config --global include.path ~/.aliases
 ```
 
-## Nicer git diffs (delta)
-
-`git/.delta` sets `core.pager`/`interactive.diffFilter` to
-[`delta`](https://github.com/dandavison/delta) plus `merge.conflictstyle =
-zdiff3`, for side-by-side-free but syntax-highlighted, line-numbered diffs
-and nicer merge conflicts.
-
-Not registered automatically — unlike `git/.aliases`, turning this on
-unconditionally would break `git diff` on any machine without delta
-installed. Install delta first (`brew install git-delta`, `apt install
-git-delta`, ...), then opt in:
-
-```bash
-git config --global include.path ~/.delta
-```
-
 ## Modern CLI tools
 
 `cli/.clirc` (sourced by both bash and zsh) auto-wires these in *if
@@ -126,14 +110,11 @@ needed.
 
 | Tool | Alias / integration in `.clirc` | Example commands |
 |---|---|---|
-| [`ripgrep`](https://github.com/BurntSushi/ripgrep) | — (use `rg` directly) | `rg "TODO"` — recursive search from here<br>`rg -i "error" src/` — case-insensitive, scoped to a dir<br>`rg -l "foo"` — list matching filenames only |
 | [`bat`](https://github.com/sharkdp/bat) | `cat` → `bat` | `cat file.rs` — syntax-highlighted view (via the alias)<br>`bat -A file.txt` — show non-printable characters<br>`git diff \| bat` — colorized diff paging |
-| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | adds `z` (and `zi` once `fzf` is also installed) | `z dotfiles` — jump to the best match for "dotfiles"<br>`z foo bar` — match on multiple terms<br>`zi foo` — pick interactively via fzf<br>`z -` — jump back to the previous directory |
-| [`fd`](https://github.com/sharkdp/fd) | — (use `fd` directly; normalized from `fdfind` on Debian/Ubuntu) | `fd pattern` — find files/dirs matching pattern<br>`fd -e md` — find by extension<br>`fd -t d node_modules` — find directories only |
-| [`fzf`](https://github.com/junegunn/fzf) | adds Ctrl+R / Ctrl+T / Alt+C keybindings | `Ctrl+R` — fuzzy search shell history<br>`Ctrl+T` — fuzzy-find a file, insert its path<br>`Alt+C` — fuzzy-find a directory, `cd` into it |
 | [`eza`](https://github.com/eza-community/eza) | `ls` / `ll` / `la` / `lt` | `ls` — icons + colors (`eza --icons`)<br>`ll` — long listing with git status (`eza -la --icons --git`)<br>`lt` — 2-level tree view (`eza --tree --icons --level=2`) |
-
-**Not wired in automatically:** [Neovim](https://neovim.io/).
+| [`fd`](https://github.com/sharkdp/fd) | — (use `fd` directly; normalized from `fdfind` on Debian/Ubuntu) | `fd pattern` — find files/dirs matching pattern<br>`fd -e md` — find by extension<br>`fd -t d node_modules` — find directories only |
+| [`ripgrep`](https://github.com/BurntSushi/ripgrep) | — (use `rg` directly) | `rg "TODO"` — recursive search from here<br>`rg -i "error" src/` — case-insensitive, scoped to a dir<br>`rg -l "foo"` — list matching filenames only |
+| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | adds `z` | `z dotfiles` — jump to the best match for "dotfiles"<br>`z foo bar` — match on multiple terms<br>`z -` — jump back to the previous directory |
 
 **macOS / Linux:** [Homebrew](https://brew.sh/).
 
@@ -145,7 +126,6 @@ needed.
 
 ## Roadmap
 
-- [ ] Editor config (Neovim/VS Code settings) as its own Stow package
 - [ ] `shellcheck`/PSScriptAnalyzer wired into CI
 
 ---
