@@ -86,7 +86,7 @@ Keep all logic in `.bashrc`.
 
 Sourced from both `bash/.bashrc` and `zsh/.zshrc` (guarded by `[ -f
 ~/.clirc ]`, since not every machine has run the installer yet). Wires in
-eza/bat/zoxide/fzf/atuin/fd/lazygit as aliases or `eval`'d shell-init
+eza/bat/zoxide/fzf/fd as aliases or `eval`'d shell-init
 output. Every block is gated on `command -v <tool>` so a machine missing
 any of them just skips that line instead of breaking the shell — this file
 should never be the reason a fresh clone's shell fails to start.
@@ -97,7 +97,7 @@ Debian/Ubuntu package `bat` and `fd` under different binary names
 has the same problem before assuming the binary name matches the package
 name.
 
-zoxide/fzf/atuin each need to know which shell they're initializing for
+zoxide/fzf each need to know which shell they're initializing for
 (`zoxide init bash` vs `zoxide init zsh`). Since this file is shared, it
 branches on `$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than
 duplicating the file per shell.

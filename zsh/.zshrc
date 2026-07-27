@@ -10,5 +10,5 @@ else
   PROMPT='%F{1}%n %F{8}%~ %F{1}#%f '
 fi
 
-# Modern CLI tool integration (eza/bat/zoxide/fzf/atuin/...), shared with bash.
+# Modern CLI tool integration (eza/bat/zoxide/fzf/fd), shared with bash.
 [ -f "$HOME/.clirc" ] && . "$HOME/.clirc"

@@ -112,9 +112,7 @@ installed* — nothing breaks if they're not, each one is behind a
 | [`bat`](https://github.com/sharkdp/bat) | `cat` becomes a syntax-highlighting pager |
 | [`zoxide`](https://github.com/ajeetdsouza/zoxide) | `z <partial-name>` jumps to a frecent directory |
 | [`fzf`](https://github.com/junegunn/fzf) | fuzzy Ctrl+R history / Ctrl+T file search |
-| [`atuin`](https://github.com/atuinsh/atuin) | SQLite-backed, fuzzy-searchable shell history |
 | [`fd`](https://github.com/sharkdp/fd) | available as `fd` even on Debian/Ubuntu (packaged as `fdfind` there) |
-| [`lazygit`](https://github.com/jesseduffield/lazygit) | terminal UI for git, aliased to `lzg` (`lg` is already a git alias) |
 
 Install any of these however you like (`brew install eza`, `apt install
 bat`, ...) and restart your shell — no repo changes needed.
@@ -125,8 +123,8 @@ directly, no alias needed. [`delta`](https://github.com/dandavison/delta)
 (nicer git diffs) needs a `~/.gitconfig` change
 (`git config --global core.pager delta`), which isn't in `git/.aliases` on
 purpose — setting it unconditionally would break `git diff` on any machine
-where delta isn't installed yet. [`direnv`](https://direnv.net/),
-[Neovim](https://neovim.io/), [`tmux`](https://github.com/tmux/tmux).
+where delta isn't installed yet. [Neovim](https://neovim.io/),
+[`tmux`](https://github.com/tmux/tmux).
 
 **macOS / Linux:** [Homebrew](https://brew.sh/), `htop`/`btop`.
 

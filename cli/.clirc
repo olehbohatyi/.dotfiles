@@ -21,16 +21,18 @@ elif command -v batcat >/dev/null 2>&1; then
   alias bat='batcat'
 fi
 
+# rg and fd are deliberately NOT aliased over grep/find: unlike bat/eza
+# (drop-in output upgrades), rg/fd ship a simplified CLI that isn't
+# flag-compatible with the originals (e.g. rg is recursive by default).
+# Use rg/fd directly instead.
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd='fdfind'
 fi
 
-if command -v lazygit >/dev/null 2>&1; then
-  alias lzg='lazygit'
-fi
-
-# zoxide/fzf/atuin ship shell-specific init generators; branch on which
-# shell is actually running this file rather than duplicating it per shell.
+# zoxide/fzf ship shell-specific init generators; branch on which shell is
+# actually running this file rather than duplicating it per shell.
+# zoxide adds `z` as a new command rather than overriding `cd` itself
+# (deliberate — `zoxide init --cmd cd` exists if you ever want that instead).
 if [ -n "$ZSH_VERSION" ]; then
   _clirc_shell=zsh
 elif [ -n "$BASH_VERSION" ]; then
@@ -40,7 +42,6 @@ fi
 if [ -n "$_clirc_shell" ]; then
   command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init "$_clirc_shell")"
   command -v fzf >/dev/null 2>&1 && eval "$(fzf --"$_clirc_shell")"
-  command -v atuin >/dev/null 2>&1 && eval "$(atuin init "$_clirc_shell")"
 fi
 
 unset _clirc_shell
