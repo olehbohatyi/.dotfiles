@@ -100,6 +100,10 @@ registers the include automatically; without the installer, run:
 git config --global include.path ~/.aliases
 ```
 
+`cli/.clirc` also aliases the base command itself: `g` → `git`. It's a
+separate mechanism (a shell alias, not a git alias) so the two combine —
+`g aa`, `g st`, `g f` (fetch) all work.
+
 ## Modern CLI tools
 
 `cli/.clirc` (sourced by both bash and zsh) auto-wires these in *if
@@ -110,10 +114,10 @@ needed.
 
 | Tool | Alias / integration in `.clirc` | Example commands |
 |---|---|---|
-| [`bat`](https://github.com/sharkdp/bat) | `cat` → `bat` | `cat file.rs` — syntax-highlighted view (via the alias)<br>`bat -A file.txt` — show non-printable characters<br>`git diff \| bat` — colorized diff paging |
+| [`bat`](https://github.com/sharkdp/bat) | `cat` / `c` → `bat` | `cat file.rs` / `c file.rs` — syntax-highlighted view (via the alias)<br>`bat -A file.txt` — show non-printable characters<br>`git diff \| bat` — colorized diff paging |
 | [`eza`](https://github.com/eza-community/eza) | `ls` / `ll` / `la` / `lt` | `ls` — icons + colors (`eza --icons`)<br>`ll` — long listing with git status (`eza -la --icons --git`)<br>`lt` — 2-level tree view (`eza --tree --icons --level=2`) |
-| [`fd`](https://github.com/sharkdp/fd) | — (use `fd` directly; normalized from `fdfind` on Debian/Ubuntu) | `fd pattern` — find files/dirs matching pattern<br>`fd -e md` — find by extension<br>`fd -t d node_modules` — find directories only |
-| [`ripgrep`](https://github.com/BurntSushi/ripgrep) | — (use `rg` directly) | `rg "TODO"` — recursive search from here<br>`rg -i "error" src/` — case-insensitive, scoped to a dir<br>`rg -l "foo"` — list matching filenames only |
+| [`fd`](https://github.com/sharkdp/fd) | `f` (normalized from `fdfind` on Debian/Ubuntu) | `f pattern` — find files/dirs matching pattern<br>`f -e md` — find by extension<br>`f -t d node_modules` — find directories only |
+| [`ripgrep`](https://github.com/BurntSushi/ripgrep) | `r` → `rg` | `r "TODO"` — recursive search from here<br>`r -i "error" src/` — case-insensitive, scoped to a dir<br>`r -l "foo"` — list matching filenames only |
 | [`zoxide`](https://github.com/ajeetdsouza/zoxide) | adds `z` | `z dotfiles` — jump to the best match for "dotfiles"<br>`z foo bar` — match on multiple terms<br>`z -` — jump back to the previous directory |
 
 **macOS / Linux:** [Homebrew](https://brew.sh/).

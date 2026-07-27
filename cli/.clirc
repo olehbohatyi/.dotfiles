@@ -3,9 +3,17 @@
 # machine missing any of these tools just skips that block instead of
 # breaking the shell — install them whenever you get to it.
 #
+# Also adds single-letter shortcuts for the most-typed commands: g/c/f/r.
+#
 # Debian/Ubuntu package two of these under different binary names (to
 # avoid clashing with unrelated existing packages), so both names are
 # checked: bat -> batcat, fd -> fdfind.
+
+# Separate from git/.aliases (those are `git <alias>` subcommands, e.g.
+# `git aa`) — this just shortens the base command, so they combine: `g aa`.
+if command -v git >/dev/null 2>&1; then
+  alias g='git'
+fi
 
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --icons'
@@ -16,17 +24,27 @@ fi
 
 if command -v bat >/dev/null 2>&1; then
   alias cat='bat'
+  alias c='bat'
 elif command -v batcat >/dev/null 2>&1; then
   alias cat='batcat'
   alias bat='batcat'
+  alias c='batcat'
 fi
 
 # rg and fd are deliberately NOT aliased over grep/find: unlike bat/eza
 # (drop-in output upgrades), rg/fd ship a simplified CLI that isn't
 # flag-compatible with the originals (e.g. rg is recursive by default).
-# Use rg/fd directly instead.
+# Use rg/fd directly instead — r/f below are just shorter names for them.
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd='fdfind'
+fi
+
+if command -v fd >/dev/null 2>&1 || command -v fdfind >/dev/null 2>&1; then
+  alias f='fd'
+fi
+
+if command -v rg >/dev/null 2>&1; then
+  alias r='rg'
 fi
 
 # zoxide ships a shell-specific init generator; branch on which shell is

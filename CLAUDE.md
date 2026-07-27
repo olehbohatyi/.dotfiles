@@ -86,10 +86,14 @@ Keep all logic in `.bashrc`.
 
 Sourced from both `bash/.bashrc` and `zsh/.zshrc` (guarded by `[ -f
 ~/.clirc ]`, since not every machine has run the installer yet). Wires in
-bat/eza/fd/rg/zoxide as aliases or `eval`'d shell-init output. Every block is
-gated on `command -v <tool>` so a machine missing any of them just skips
-that line instead of breaking the shell — this file should never be the
-reason a fresh clone's shell fails to start.
+bat/eza/fd/rg/zoxide as aliases or `eval`'d shell-init output, plus
+single-letter shortcuts for the base commands themselves: `g`/`c`/`f`/`r`
+for git/bat/fd/rg. Every block is gated on `command -v <tool>` so a machine
+missing any of them just skips that line instead of breaking the shell —
+this file should never be the reason a fresh clone's shell fails to start.
+
+The `g` alias is a plain shell alias for `git`, distinct from `git/.aliases`
+(those are `git <alias>` subcommands) — they combine, e.g. `g aa`.
 
 Debian/Ubuntu package `bat` and `fd` under different binary names
 (`batcat`, `fdfind`) to avoid clashing with unrelated existing packages.
