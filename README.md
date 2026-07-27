@@ -20,7 +20,7 @@ amm/.ammonite/    Ammonite REPL predef: helper.sc, import.sc, predef.sc
 bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1
-git/              .aliases — git aliases, included from ~/.gitconfig
+git/              .aliases, .delta — git config fragments, included from ~/.gitconfig
 cli/              .clirc — modern CLI tool integration, shared by bash+zsh
 install.sh        Stow-based installer: bash, zsh, amm, git, cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -100,6 +100,22 @@ registers the include automatically; without the installer, run:
 git config --global include.path ~/.aliases
 ```
 
+## Nicer git diffs (delta)
+
+`git/.delta` sets `core.pager`/`interactive.diffFilter` to
+[`delta`](https://github.com/dandavison/delta) plus `merge.conflictstyle =
+zdiff3`, for side-by-side-free but syntax-highlighted, line-numbered diffs
+and nicer merge conflicts.
+
+Not registered automatically — unlike `git/.aliases`, turning this on
+unconditionally would break `git diff` on any machine without delta
+installed. Install delta first (`brew install git-delta`, `apt install
+git-delta`, ...), then opt in:
+
+```bash
+git config --global include.path ~/.delta
+```
+
 ## Modern CLI tools
 
 `cli/.clirc` (sourced by both bash and zsh) auto-wires these in *if
@@ -117,14 +133,9 @@ needed.
 | [`fzf`](https://github.com/junegunn/fzf) | adds Ctrl+R / Ctrl+T / Alt+C keybindings | `Ctrl+R` — fuzzy search shell history<br>`Ctrl+T` — fuzzy-find a file, insert its path<br>`Alt+C` — fuzzy-find a directory, `cd` into it |
 | [`eza`](https://github.com/eza-community/eza) | `ls` / `ll` / `la` / `lt` | `ls` — icons + colors (`eza --icons`)<br>`ll` — long listing with git status (`eza -la --icons --git`)<br>`lt` — 2-level tree view (`eza --tree --icons --level=2`) |
 
-**Not wired in automatically:**
-[`delta`](https://github.com/dandavison/delta) (nicer git diffs) needs a
-`~/.gitconfig` change (`git config --global core.pager delta`), which
-isn't in `git/.aliases` on purpose — setting it unconditionally would
-break `git diff` on any machine where delta isn't installed yet.
-[Neovim](https://neovim.io/), [`tmux`](https://github.com/tmux/tmux).
+**Not wired in automatically:** [Neovim](https://neovim.io/).
 
-**macOS / Linux:** [Homebrew](https://brew.sh/), `htop`/`btop`.
+**macOS / Linux:** [Homebrew](https://brew.sh/).
 
 **Windows:** [Windows Terminal](https://github.com/microsoft/terminal),
 [`winget`](https://learn.microsoft.com/en-us/windows/package-manager/winget/) or

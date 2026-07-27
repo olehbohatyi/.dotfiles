@@ -15,7 +15,7 @@ amm/.ammonite/    Ammonite predef: helper.sc, import.sc, predef.sc
 bash/             .bash_profile, .bashrc
 zsh/              .zshrc
 pwsh/             profile.ps1 (not stowed — see below)
-git/              .aliases, included from ~/.gitconfig via include.path
+git/              .aliases, .delta — both included from ~/.gitconfig via include.path
 cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
 install.sh        Stow installer: bash/zsh/amm/git/cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -31,9 +31,12 @@ static symlink target — `install.ps1` handles it. Never hardcode a profile
 path; PowerShell's own `$PROFILE` already accounts for edition/OS and
 Documents-folder redirection.
 
-`git/.aliases` is an include fragment (`git config --global include.path
-~/.aliases`), not a full `.gitconfig` — never let it own
-`user.name`/`user.email`/signing config.
+`git/.aliases` and `git/.delta` are include fragments (`git config --global
+include.path ~/.aliases`, and separately `~/.delta`), not a full
+`.gitconfig` — never let either own `user.name`/`user.email`/signing
+config. `.delta` is deliberately *not* auto-registered by `install.sh` the
+way `.aliases` is: setting `core.pager = delta` unconditionally would break
+`git diff` on a machine without delta installed, so it's opt-in only.
 
 ## The shared prompt
 

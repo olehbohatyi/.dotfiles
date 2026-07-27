@@ -1,0 +1,20 @@
+# Optional: nicer git diffs via delta (https://github.com/dandavison/delta).
+#
+# Not registered automatically by install.sh — unlike git/.aliases, turning
+# this on unconditionally would break `git diff` on any machine that
+# doesn't have delta installed. Once delta is installed, opt in with:
+#
+#   git config --global include.path ~/.delta
+
+[core]
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	line-numbers = true
+
+[merge]
+	conflictstyle = zdiff3
