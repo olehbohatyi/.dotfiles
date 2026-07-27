@@ -104,27 +104,25 @@ git config --global include.path ~/.aliases
 
 `cli/.clirc` (sourced by both bash and zsh) auto-wires these in *if
 installed* — nothing breaks if they're not, each one is behind a
-`command -v` check:
+`command -v` check. Install any of these however you like (`brew install
+eza`, `apt install bat`, ...) and restart your shell — no repo changes
+needed.
 
-| Tool | Effect |
-|---|---|
-| [`eza`](https://github.com/eza-community/eza) | `ls`/`ll`/`la`/`lt` become an `ls` replacement with icons and git status |
-| [`bat`](https://github.com/sharkdp/bat) | `cat` becomes a syntax-highlighting pager |
-| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | `z <partial-name>` jumps to a frecent directory |
-| [`fzf`](https://github.com/junegunn/fzf) | fuzzy Ctrl+R history / Ctrl+T file search |
-| [`fd`](https://github.com/sharkdp/fd) | available as `fd` even on Debian/Ubuntu (packaged as `fdfind` there) |
-
-Install any of these however you like (`brew install eza`, `apt install
-bat`, ...) and restart your shell — no repo changes needed.
+| Tool | Alias / integration in `.clirc` | Example commands |
+|---|---|---|
+| [`ripgrep`](https://github.com/BurntSushi/ripgrep) | — (use `rg` directly) | `rg "TODO"` — recursive search from here<br>`rg -i "error" src/` — case-insensitive, scoped to a dir<br>`rg -l "foo"` — list matching filenames only |
+| [`bat`](https://github.com/sharkdp/bat) | `cat` → `bat` | `cat file.rs` — syntax-highlighted view (via the alias)<br>`bat -A file.txt` — show non-printable characters<br>`git diff \| bat` — colorized diff paging |
+| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | adds `z` (and `zi` once `fzf` is also installed) | `z dotfiles` — jump to the best match for "dotfiles"<br>`z foo bar` — match on multiple terms<br>`zi foo` — pick interactively via fzf<br>`z -` — jump back to the previous directory |
+| [`fd`](https://github.com/sharkdp/fd) | — (use `fd` directly; normalized from `fdfind` on Debian/Ubuntu) | `fd pattern` — find files/dirs matching pattern<br>`fd -e md` — find by extension<br>`fd -t d node_modules` — find directories only |
+| [`fzf`](https://github.com/junegunn/fzf) | adds Ctrl+R / Ctrl+T / Alt+C keybindings | `Ctrl+R` — fuzzy search shell history<br>`Ctrl+T` — fuzzy-find a file, insert its path<br>`Alt+C` — fuzzy-find a directory, `cd` into it |
+| [`eza`](https://github.com/eza-community/eza) | `ls` / `ll` / `la` / `lt` | `ls` — icons + colors (`eza --icons`)<br>`ll` — long listing with git status (`eza -la --icons --git`)<br>`lt` — 2-level tree view (`eza --tree --icons --level=2`) |
 
 **Not wired in automatically:**
-[`ripgrep`](https://github.com/BurntSushi/ripgrep) (`rg`) — just use it
-directly, no alias needed. [`delta`](https://github.com/dandavison/delta)
-(nicer git diffs) needs a `~/.gitconfig` change
-(`git config --global core.pager delta`), which isn't in `git/.aliases` on
-purpose — setting it unconditionally would break `git diff` on any machine
-where delta isn't installed yet. [Neovim](https://neovim.io/),
-[`tmux`](https://github.com/tmux/tmux).
+[`delta`](https://github.com/dandavison/delta) (nicer git diffs) needs a
+`~/.gitconfig` change (`git config --global core.pager delta`), which
+isn't in `git/.aliases` on purpose — setting it unconditionally would
+break `git diff` on any machine where delta isn't installed yet.
+[Neovim](https://neovim.io/), [`tmux`](https://github.com/tmux/tmux).
 
 **macOS / Linux:** [Homebrew](https://brew.sh/), `htop`/`btop`.
 
