@@ -17,6 +17,7 @@ zsh/              .zshrc
 pwsh/             profile.ps1 (not stowed — see below)
 git/              .aliases — included from ~/.gitconfig via include.path
 cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
+                  .ripgreprc — rg colors, loaded via RIPGREP_CONFIG_PATH
 claude/.claude/   settings.json — Claude Code config (see below)
 install.sh        Stow installer: bash/zsh/amm/git/cli/claude (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -106,6 +107,41 @@ zoxide needs to know which shell it's initializing for (`zoxide init bash`
 vs `zoxide init zsh`). Since this file is shared, it branches on
 `$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than duplicating the
 file per shell.
+
+## Unified tool colors
+
+`.clirc` themes bat/eza/fd/rg onto the same five bright-ANSI slots as the
+prompt (9 red, 10 green, 11 yellow, 12 blue, 14 cyan) — the palette table
+lives in `.clirc` itself, above the exports. **These are palette indices,
+never RGB or hex.** That's what makes the tools track the terminal theme the
+same way `%F{11}` does; hardcoding `38;2;r;g;b` anywhere here would freeze
+one tool against a moving background. The prompt palette and this table are
+one design — change the prompt in `bash/.bashrc` + `zsh/.zshrc` +
+`pwsh/profile.ps1` and update the `.clirc` table in the same commit.
+
+Each tool needs a different mechanism, and only one of the four is a
+straightforward env var:
+
+- **fd** reads `LS_COLORS` (so does GNU `ls`; BSD `ls` on macOS wants
+  `LSCOLORS`, a different format, and is left alone because `ls` is aliased
+  to eza anyway).
+- **eza** reads `LS_COLORS` as a base, then `EZA_COLORS` for the columns
+  only it has. Watch out: `tw` exists in *both* with unrelated meanings —
+  "other-writable dir" in `LS_COLORS`, "other-write permission bit" in
+  `EZA_COLORS`.
+- **bat** ignores env colors entirely; its themes carry hardcoded RGB. Only
+  the `ansi` theme renders through the terminal's 16 colors — `base16` and
+  `base16-256` are 256-color and will *not* follow the palette. Don't
+  "upgrade" `BAT_THEME` to a prettier theme without accepting that it opts
+  bat out of the shared palette.
+- **rg** has no color env var at all, which is why `cli/.ripgreprc` exists.
+
+`RIPGREP_CONFIG_PATH` is the one export that's guarded on the file existing.
+rg treats a missing config path as a hard error and prints `failed to read
+the file specified in RIPGREP_CONFIG_PATH` on *every* invocation instead of
+searching — so an unguarded export would break `rg` on any machine that
+hasn't stowed `cli` yet. That's the same "never break a fresh clone's shell"
+rule the `command -v` guards follow; keep the `[ -f ]` test.
 
 ## claude/ — Claude Code settings
 

@@ -9,6 +9,55 @@
 # avoid clashing with unrelated existing packages), so both names are
 # checked: bat -> batcat, fd -> fdfind.
 
+# ---------------------------------------------------------------------------
+# Unified colors
+#
+# Each of these tools ships its own unrelated default palette. They're all
+# pointed at the same five bright-ANSI slots the shell prompt uses, so a
+# directory is the same yellow in `ls`, `fd` and `rg`:
+#
+#   9  bright red     prompt: user        here: your username in `ll`,
+#                                               broken links, deleted, setuid
+#   10 bright green   prompt: ∫           here: executables, added/new
+#   11 bright yellow  prompt: dir         here: directories, paths, modified
+#   12 bright blue    prompt: git branch  here: dates, renames, special files
+#   14 bright cyan    prompt: λ           here: symlinks, sizes, line numbers
+#
+# These are palette *indices*, not fixed RGB — they resolve to whatever the
+# terminal theme defines for those slots, exactly like the prompt's `%F{11}`
+# / `\e[0;93m` do. Retheme the terminal and all of it moves together. If you
+# change the prompt palette (bash/.bashrc + zsh/.zshrc + pwsh/profile.ps1),
+# change this table with it.
+#
+# Unlike the aliases below these are plain env vars, so they need no
+# `command -v` guard — an LS_COLORS with nothing installed to read it costs
+# nothing. RIPGREP_CONFIG_PATH is the one exception; see the note there.
+
+# Read by fd, GNU ls, and eza (as the base layer under EZA_COLORS).
+export LS_COLORS='di=93:ln=96:or=91:mi=91:ex=92:fi=0:pi=94:so=94:bd=94:cd=94:su=91:sg=91:tw=91:ow=91:st=94'
+
+# eza's own keys, layered on top of LS_COLORS: permission bits, size, owner,
+# date, punctuation, and the --git status column. The git letters keep their
+# conventional meanings (new=green, modified=yellow, deleted=red) while still
+# staying inside the five prompt colors.
+# Note eza's `tw` here means "other-write permission bit" — unrelated to the
+# `tw` in LS_COLORS above ("sticky and other-writable dir"). Separate
+# namespaces that happen to collide by name.
+export EZA_COLORS='ur=93:uw=91:ux=92:ue=92:gr=93:gw=91:gx=92:tr=93:tw=91:tx=92:sn=96:sb=36:uu=91:un=90:gu=91:gn=90:da=94:xx=90:hd=96:lp=96:bO=91:ga=92:gm=93:gd=91:gv=94:gt=96'
+
+# bat's themes hardcode RGB values and ignore the terminal palette entirely.
+# `ansi` is the one built-in theme that renders using only the 16 ANSI
+# colors, so syntax highlighting inherits the same theme as everything else
+# instead of fighting it. (`base16`/`base16-256` are 256-color, not 16.)
+export BAT_THEME=ansi
+
+# rg has no color env var at all — its colors can only come from a config
+# file. Guarded on existence because rg *errors out* on every invocation if
+# RIPGREP_CONFIG_PATH names a file that isn't there, so an unstowed machine
+# would get "failed to read the file specified in RIPGREP_CONFIG_PATH"
+# instead of search results.
+[ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
 # Separate from git/.aliases (those are `git <alias>` subcommands, e.g.
 # `git aa`) — this just shortens the base command, so they combine: `g aa`.
 if command -v git >/dev/null 2>&1; then

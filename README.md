@@ -9,7 +9,7 @@ so everything is a symlink back into this repo, not a copy that drifts.
 λ username: .dotfiles (main) ∫
 ```
 
-Cyan `λ`, red username, yellow directory, dim git branch, green `∫`. Same
+Cyan `λ`, red username, yellow directory, blue git branch, green `∫`. Same
 shape, same colors, in every shell. Running as root/Administrator swaps in a
 plain red `user path #` instead, as a "be careful" cue.
 
@@ -22,6 +22,7 @@ zsh/              .zshrc
 pwsh/             profile.ps1
 git/              .aliases — git config fragment, included from ~/.gitconfig
 cli/              .clirc — modern CLI tool integration, shared by bash+zsh
+                  .ripgreprc — ripgrep colors (rg has no color env var)
 claude/.claude/   settings.json — Claude Code settings + permission allowlist
 install.sh        Stow-based installer: bash, zsh, amm, git, cli, claude (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
@@ -138,6 +139,30 @@ needed.
 | [`fd`](https://github.com/sharkdp/fd) | `f` (normalized from `fdfind` on Debian/Ubuntu) | `f pattern` — find files/dirs matching pattern<br>`f -e md` — find by extension<br>`f -t d node_modules` — find directories only |
 | [`ripgrep`](https://github.com/BurntSushi/ripgrep) | `r` → `rg` | `r "TODO"` — recursive search from here<br>`r -i "error" src/` — case-insensitive, scoped to a dir<br>`r -l "foo"` — list matching filenames only |
 | [`zoxide`](https://github.com/ajeetdsouza/zoxide) | adds `z` | `z dotfiles` — jump to the best match for "dotfiles"<br>`z foo bar` — match on multiple terms<br>`z -` — jump back to the previous directory |
+
+### One palette across all of them
+
+Out of the box each of these tools picks its own colors, so a directory is
+one shade in `ls` and a different one in `fd`. `.clirc` points all four at
+the same five bright-ANSI slots the prompt uses:
+
+| Slot | Color | In the prompt | In the tools |
+|---|---|---|---|
+| 9 | bright red | username | your username in `ll`, broken links, deleted files, the `rg` match |
+| 10 | bright green | `∫` | executables, git-new |
+| 11 | bright yellow | directory | directories, `rg` paths, git-modified |
+| 12 | bright blue | git branch | dates, renames, device/special files |
+| 14 | bright cyan | `λ` | symlinks, file sizes, `rg` line numbers |
+
+They're palette *indices*, not fixed RGB, so they resolve against whatever
+your terminal theme defines — switch terminal themes and the tools move with
+the prompt instead of staying stuck on their own hardcoded colors.
+
+How each tool gets there: `fd` reads `LS_COLORS`; `eza` layers `EZA_COLORS`
+on top for its permission/size/date/git columns; `bat` uses the built-in
+`ansi` theme (the only one that renders via the terminal's 16 colors rather
+than hardcoded RGB); `rg` has no color env var at all, so it reads
+`cli/.ripgreprc` via `RIPGREP_CONFIG_PATH`.
 
 **macOS / Linux:** [Homebrew](https://brew.sh/).
 

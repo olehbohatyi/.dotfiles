@@ -1,0 +1,19 @@
+# ripgrep config, symlinked to ~/.ripgreprc and loaded via the
+# RIPGREP_CONFIG_PATH export in ~/.clirc (rg has no color env var, so a
+# config file is the only way to theme it).
+#
+# Format: one argument per line, no shell quoting, no inline comments —
+# a `#` only starts a comment at the beginning of a line.
+#
+# Colors are ANSI palette indices matching the shell prompt, so they follow
+# the terminal theme. See the palette table in cli/.clirc before editing:
+#   11 bright yellow = paths (same as the prompt's dir segment)
+#   14 bright cyan   = line/column numbers (same as the prompt's λ)
+#    9 bright red    = the match itself (same as the prompt's username)
+
+--colors=path:fg:11
+--colors=path:style:bold
+--colors=line:fg:14
+--colors=column:fg:14
+--colors=match:fg:9
+--colors=match:style:bold
