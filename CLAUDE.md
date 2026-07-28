@@ -47,9 +47,18 @@ Same shape and colors in every shell:
 
 Cyan `λ`, red user, yellow dir, blue git branch, green `∫`; a plain dim-red
 `<user> <path> #` as root/Administrator. Change the design in
-`bash/.bashrc`, `zsh/.zshrc`, and `pwsh/profile.ps1` together — never just
-one (Ammonite's `helper.sc` follows the same palette minus the path
-segment).
+`bash/.bashrc`, `zsh/.zshrc`, `pwsh/profile.ps1` **and
+`amm/.ammonite/predef.sc`** together — never just one. All four render the
+full shape including the git segment. Ammonite gets there through fansi
+(`LightCyan`/`LightRed`/`LightYellow`/`LightBlue`/`LightGreen`), which emits
+the same bright codes but closes each span with `\e[39m` instead of leaving
+the color sticky the way the bash/zsh strings do — same result on screen.
+
+One deliberate difference, inherited from `profile.ps1`: on a detached HEAD,
+bash/zsh print `((HEAD detached at abc1234))` because they post-process
+`git branch` with sed, while pwsh and Ammonite ask git directly and fall
+back to the short SHA, giving `(abc1234)`. The shells are the odd ones out
+here; don't "fix" the other two to match them.
 
 **Color mapping** (pwsh shipped the wrong shade here twice — check this
 when touching any prompt color): bash's bright codes (`\e[0;9Xm`) and zsh's
