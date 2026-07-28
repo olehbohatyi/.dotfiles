@@ -88,11 +88,16 @@ backup or an explicit `git diff` to review.
 
 ## Git aliases
 
-`git/.aliases` — short names for staging (`aa`, `ap`), branches (`br`, `sw`),
-fetch/push (`f`, `up`, `please`), stash (`ss`, `sl`, `sp`), rebase (`rbi`,
-`rbc`, `rba`), log (`lg`, `ll`, `last`), and cleanup of merged branches
-(`cleanup`). Full list is in the file itself — that's the source of truth,
-not this README.
+`git/.aliases` — short names for staging (`a`, `aa`, `ap`), branches (`br`,
+`sw`), fetch/push (`f`, `p`, `up`, `please`), undo (`r`, `unstage`, `undo`),
+stash (`ss`, `sl`, `sp`), rebase (`rbi`, `rbc`, `rba`), log (`lg`, `ll`,
+`last`), and cleanup of merged branches (`cleanup`). Full list is in the file
+itself — that's the source of truth, not this README.
+
+The two undo directions are easy to mix up: `unstage` keeps your edits and
+just clears the index, `r` (restore) throws the working-tree edits away.
+Both require a pathspec, so a bare `git r` errors rather than wiping
+everything.
 
 It's included via `include.path` rather than being a full `.gitconfig`, so
 it never touches `user.name`/`user.email`/signing config. `install.sh`

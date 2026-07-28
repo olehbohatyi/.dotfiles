@@ -55,14 +55,21 @@ done
 packages=("${DEFAULT_PACKAGES[@]}")
 [ ${#selected[@]} -gt 0 ] && packages=("${selected[@]}")
 
-# Claude Code keeps machine-local runtime state (sessions, cache, telemetry,
-# conversation transcripts) in ~/.claude next to its settings. If that
-# directory doesn't exist yet, stow symlinks the whole thing into the repo
-# and every later session writes its history into git. Creating it first
-# forces stow to fold instead, linking only settings.json.
-if [[ " ${packages[*]} " == *" claude "* ]]; then
-  mkdir -p "$HOME/.claude"
-fi
+# Some tools keep machine-local runtime state in the same directory as their
+# config. If that directory doesn't exist yet, stow symlinks the *whole*
+# directory into the repo and everything the tool writes afterwards lands in
+# git — Claude Code's sessions and conversation transcripts, Ammonite's
+# history, cache/ and rt-*.jar files (hundreds of MB). Creating the
+# directory first forces stow to fold into it instead, linking only the
+# tracked files. Verified both ways against a scratch $HOME; see CLAUDE.md.
+# Plain case/esac rather than an associative array so this still runs on the
+# bash 3.2 that ships with macOS.
+for pkg in "${packages[@]}"; do
+  case "$pkg" in
+    claude) mkdir -p "$HOME/.claude" ;;
+    amm)    mkdir -p "$HOME/.ammonite" ;;
+  esac
+done
 
 if $adopt; then
   echo "Adopting existing files in \$HOME into the repo."

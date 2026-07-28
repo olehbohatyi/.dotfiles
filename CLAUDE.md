@@ -75,7 +75,13 @@ maps to `Dark*`. Git branch is bright blue everywhere: `\e[0;94m` / `%F{12}`
   (login shells don't read `.bashrc` on their own; see below).
 - **Ammonite**: idiomatic Scala, https://ammonite.io/#Ammonite-REPL.
   `predef.sc` runs on every REPL start — keep it fast/side-effect-light.
-  `helper.sc`/`import.sc` are opt-in via `$file`.
+  `helper.sc`/`import.sc` are opt-in via `$file`. Get a path segment with
+  `os.Path.last`, **never `.baseName`** — os-lib strips what it reads as an
+  extension, so `.dotfiles` (all "extension") returns `""` and blanks the
+  prompt's directory, and `my.app` silently becomes `my`. `os.home.baseName`
+  has the same failure on a `first.last`-style home directory. This is the
+  exact trap described in the PowerShell bullet above; both languages have
+  it, so check any new path-splitting code in either against a dotfile name.
 
 ## bash_profile vs bashrc
 
@@ -155,6 +161,13 @@ only folds into a target directory that already exists; on a fresh machine
 where `~/.claude` is absent it symlinks the *whole directory* into the repo,
 and every subsequent session then writes its transcripts into git. Verified
 both ways against a scratch `$HOME` — don't remove that guard.
+
+`amm` needs the identical guard on `~/.ammonite` and gets it from the same
+`case` block in `install.sh`. Ammonite fills that directory with `history`,
+`cache/`, `.scala-build/` and per-JDK `rt-*.jar` files that run to hundreds
+of megabytes, so a missed fold there doesn't just leak state — it commits
+JARs. Any future package whose target directory is *also* the tool's runtime
+directory belongs in that block too.
 
 Both `.gitignore` and `.stow-local-ignore` here are **allowlists** — ignore
 everything, then re-include only `settings.json` (plus the two ignore files

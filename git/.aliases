@@ -24,8 +24,16 @@
 	amend = commit --amend --no-edit
 	reword = commit --amend
 
+	a = add
 	aa = add --all
 	ap = add --patch
+
+	# The two halves of "undo my changes": unstage keeps the edits and only
+	# clears the index, r throws the working-tree edits away. Both take a
+	# pathspec — bare `git r` errors instead of nuking everything, which is
+	# why the `--` stays. (`discard` is the older checkout-based spelling of
+	# `r`, kept for muscle memory.)
+	r = restore --
 	unstage = restore --staged --
 	undo = reset --soft HEAD~1
 	discard = checkout --
@@ -39,6 +47,7 @@
 
 	f = fetch
 	fa = fetch --all --prune
+	p = push
 	please = push --force-with-lease
 	up = pull --rebase --autostash
 
