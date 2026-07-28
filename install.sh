@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEFAULT_PACKAGES=(bash zsh amm git cli)
+DEFAULT_PACKAGES=(bash zsh amm git cli claude)
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 usage() {
@@ -13,7 +13,7 @@ Usage: ./install.sh [--adopt] [package ...]
 
 Symlinks this repo's config files into $HOME using GNU Stow.
 
-  (no args)   Install all packages: bash zsh amm git cli
+  (no args)   Install all packages: bash zsh amm git cli claude
   package...  Install only the named packages, e.g. ./install.sh zsh git
   --adopt     Pull existing real files already in $HOME into the repo
               instead of backing them up. Use this when you want to keep
@@ -54,6 +54,15 @@ done
 
 packages=("${DEFAULT_PACKAGES[@]}")
 [ ${#selected[@]} -gt 0 ] && packages=("${selected[@]}")
+
+# Claude Code keeps machine-local runtime state (sessions, cache, telemetry,
+# conversation transcripts) in ~/.claude next to its settings. If that
+# directory doesn't exist yet, stow symlinks the whole thing into the repo
+# and every later session writes its history into git. Creating it first
+# forces stow to fold instead, linking only settings.json.
+if [[ " ${packages[*]} " == *" claude "* ]]; then
+  mkdir -p "$HOME/.claude"
+fi
 
 if $adopt; then
   echo "Adopting existing files in \$HOME into the repo."

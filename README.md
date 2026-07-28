@@ -22,7 +22,8 @@ zsh/              .zshrc
 pwsh/             profile.ps1
 git/              .aliases — git config fragment, included from ~/.gitconfig
 cli/              .clirc — modern CLI tool integration, shared by bash+zsh
-install.sh        Stow-based installer: bash, zsh, amm, git, cli (macOS/Linux)
+claude/.claude/   settings.json — Claude Code settings + permission allowlist
+install.sh        Stow-based installer: bash, zsh, amm, git, cli, claude (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
 ```
 
@@ -42,9 +43,9 @@ brew install stow   # or: sudo apt install stow / sudo dnf install stow
 ./install.sh
 ```
 
-This symlinks `bash/`, `zsh/`, `amm/`, `git/`, and `cli/` into `$HOME` and
-registers `~/.aliases` in your `~/.gitconfig`. Install only a subset with
-`./install.sh zsh git`.
+This symlinks `bash/`, `zsh/`, `amm/`, `git/`, `cli/`, and `claude/` into
+`$HOME` and registers `~/.aliases` in your `~/.gitconfig`. Install only a
+subset with `./install.sh zsh git`.
 
 **Windows / PowerShell** (any OS running pwsh):
 
@@ -103,6 +104,24 @@ git config --global include.path ~/.aliases
 `cli/.clirc` also aliases the base command itself: `g` → `git`. It's a
 separate mechanism (a shell alias, not a git alias) so the two combine —
 `g aa`, `g st`, `g f` (fetch) all work.
+
+## Claude Code settings
+
+`claude/.claude/settings.json` — theme, the official plugin marketplace, and
+a permission allowlist so read-only commands (`ls`, `cat`, `rg`, `fd`,
+`git status`, `git diff`, `git log`, ...) run without a prompt every time.
+Anything that can mutate state still asks.
+
+Only `settings.json` is tracked. The rest of `~/.claude` — `sessions/`,
+`cache/`, `telemetry/`, `projects/` (which holds full conversation
+transcripts) — is machine-local runtime state and stays out of git. Both
+`.gitignore` and `.stow-local-ignore` in this package ignore *everything*
+and re-include just that one file, so a runtime directory Claude Code
+invents later can't quietly start getting committed.
+
+The allowlist names read-only git subcommands one by one instead of using
+`Bash(git *)`, because permission rules match by prefix and `git *` would
+also cover `git push` and `git reset --hard`.
 
 ## Modern CLI tools
 

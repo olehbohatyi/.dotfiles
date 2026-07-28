@@ -17,7 +17,8 @@ zsh/              .zshrc
 pwsh/             profile.ps1 (not stowed — see below)
 git/              .aliases — included from ~/.gitconfig via include.path
 cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
-install.sh        Stow installer: bash/zsh/amm/git/cli (macOS/Linux)
+claude/.claude/   settings.json — Claude Code config (see below)
+install.sh        Stow installer: bash/zsh/amm/git/cli/claude (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
 ```
 
@@ -105,6 +106,44 @@ zoxide needs to know which shell it's initializing for (`zoxide init bash`
 vs `zoxide init zsh`). Since this file is shared, it branches on
 `$ZSH_VERSION`/`$BASH_VERSION` once at the top rather than duplicating the
 file per shell.
+
+## claude/ — Claude Code settings
+
+Only `settings.json` is tracked. Everything else Claude Code puts in
+`~/.claude` (`sessions/`, `cache/`, `telemetry/`, `projects/`, `backups/`,
+`shell-snapshots/`, ...) is machine-local runtime state, and `projects/`
+holds full conversation transcripts — none of it belongs in git.
+
+**`install.sh` must `mkdir -p ~/.claude` before stowing this package.** Stow
+only folds into a target directory that already exists; on a fresh machine
+where `~/.claude` is absent it symlinks the *whole directory* into the repo,
+and every subsequent session then writes its transcripts into git. Verified
+both ways against a scratch `$HOME` — don't remove that guard.
+
+Both `.gitignore` and `.stow-local-ignore` here are **allowlists** — ignore
+everything, then re-include only `settings.json` (plus the two ignore files
+themselves, for git). Don't convert either back into a list of runtime
+directory names: a denylist goes stale the moment Claude Code writes
+somewhere new, and the thing leaking would be conversation transcripts.
+`settings.local.json`, Claude Code's machine-local override file, is covered
+by the same blanket rule rather than being named.
+
+Two things that make the allowlists work, both verified against a scratch
+`$HOME` and with `git check-ignore -v`:
+
+- git won't descend into an excluded directory, so `.claude/` has to be
+  un-ignored on its own line before `!.claude/settings.json` can match.
+- Stow's ignore patterns are Perl regexes, so the negative lookahead
+  `^/\.claude/(?!settings\.json$).*` is valid. It only covers paths *under*
+  `.claude/`, so the standard default patterns above it are still load-
+  bearing — without them a stray `claude/.DS_Store` gets symlinked into
+  `$HOME`.
+
+Permission rules use prefix-wildcard matching, so `Bash(git *)` would also
+match `git push` and `git reset --hard`. The allowlist therefore names
+read-only subcommands individually (`Bash(git log *)`, `Bash(git status)`)
+rather than wildcarding the whole command — keep it that way when adding
+entries.
 
 ## Stow mirrors the filesystem, not git
 
