@@ -1,0 +1,15 @@
+# Allowlist, not a denylist. Everything Claude Code writes into ~/.claude
+# (sessions/, cache/, telemetry/, projects/, backups/, ...) is machine-local
+# runtime state, and projects/ holds full conversation transcripts. Naming
+# those directories one by one would go stale the moment Claude Code adds a
+# new one, so ignore everything and re-include only the two tracked files.
+#
+# A directory has to be un-ignored before a file inside it can be, hence the
+# separate `!.claude/` line — git never descends into an excluded directory.
+# See https://git-scm.com/docs/gitignore
+
+*
+!.gitignore
+!.stow-local-ignore
+!.claude/
+!.claude/settings.json

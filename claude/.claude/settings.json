@@ -1,0 +1,48 @@
+{
+  "theme": "auto",
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/claude-plugins-official.git"
+      }
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(pwd)",
+      "Bash(date)",
+      "Bash(echo *)",
+      "Bash(which *)",
+      "Bash(command -v *)",
+      "Bash(file *)",
+      "Bash(stat *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(ls *)",
+      "Bash(tree *)",
+      "Bash(eza *)",
+      "Bash(cat *)",
+      "Bash(bat *)",
+      "Bash(rg *)",
+      "Bash(fd *)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git blame *)",
+      "Bash(git branch)",
+      "Bash(git remote -v)",
+      "Bash(git stash list)",
+      "Bash(git config --get *)",
+      "Bash(git config --list)",
+      "Bash(bash -n *)",
+      "Bash(zsh -n *)"
+    ]
+  }
+}
