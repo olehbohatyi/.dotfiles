@@ -45,8 +45,17 @@ Same shape and colors in every shell:
 λ <user>: <dir> (<git-branch>) ∫
 ```
 
-Cyan `λ`, red user, yellow dir, blue git branch, green `∫`; a plain dim-red
-`<user> <path> #` as root/Administrator. Change the design in
+Cyan `λ`, red user, yellow dir, blue git branch, green `∫`. As
+root/Administrator it drops to the standard (non-bright) end of the same
+palette and swaps the sigil, keeping the directory and git segment:
+
+```
+<user> <dir> (<git-branch>) #
+```
+
+dark-red user (`\e[0;31m` / `%F{1}` / `DarkRed`), grey dir (`\e[0;37m` /
+`%F{7}` / `Gray`), dim git branch (`\e[0;90m` / `%F{8}` / `DarkGray`). Change
+the design in
 `bash/.bashrc`, `zsh/.zshrc`, `pwsh/profile.ps1` **and
 `amm/.ammonite/predef.sc`** together — never just one. All four render the
 full shape including the git segment. Ammonite gets there through fansi
@@ -59,6 +68,25 @@ bash/zsh print `((HEAD detached at abc1234))` because they post-process
 `git branch` with sed, while pwsh and Ammonite ask git directly and fall
 back to the short SHA, giving `(abc1234)`. The shells are the odd ones out
 here; don't "fix" the other two to match them.
+
+**Escapes must be marked zero-width.** bash wraps every sequence in
+`\[ \]`, zsh in `%{ %}`. These tell readline/zle the bytes occupy no
+columns; without them the shell counts all 46 escape bytes as printable and
+believes an 80-column terminal has 1 usable column, which corrupts wrapping
+on long lines and redraws during `Ctrl-R`. pwsh avoids the problem entirely
+by writing the prompt with `Write-Host` rather than a string, and Ammonite
+by letting fansi measure it. Any new colored prompt segment needs the
+wrapper — it's invisible until a command gets long enough to wrap.
+
+**zsh uses literal `\e[...m`, not `%F{n}`.** `%F` consults terminfo, so on a
+TERM advertising only 8 colors (`xterm`, `linux`, `xterm-color`) every index
+≥ 8 degrades to `\e[39m` — default foreground — and the prompt renders
+colorless, while bash's hardcoded bytes stay colored. Verified across
+`xterm-256color`/`xterm`/`screen`/`linux`/`dumb`: the literal form emits
+identical bytes under all of them. The `$'...'` quoting expands `\e` once at
+assignment while leaving `$(git_branch)` for `PROMPT_SUBST` to run per
+redraw — don't switch it to double quotes, which would freeze the branch at
+shell start.
 
 **Color mapping** (pwsh shipped the wrong shade here twice — check this
 when touching any prompt color): bash's bright codes (`\e[0;9Xm`) and zsh's

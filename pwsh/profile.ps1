@@ -18,13 +18,8 @@ if ($script:OnWindows) {
 $script:UserName = if ($script:OnWindows) { $env:USERNAME } else { $env:USER }
 
 function prompt {
-  if ($script:IsElevated) {
-    Write-Host "$script:UserName " -NoNewline -ForegroundColor Red
-    Write-Host "$PWD " -NoNewline -ForegroundColor DarkGray
-    Write-Host "#" -NoNewline -ForegroundColor Red
-    return " "
-  }
-
+  # Computed before the elevated branch below, because the root prompt shows
+  # the same directory and git segment the normal one does.
   try {
     $Branch = git rev-parse --abbrev-ref HEAD 2>$null
     if ($Branch -eq "HEAD") { $Branch = git rev-parse --short HEAD 2>$null }
@@ -40,6 +35,19 @@ function prompt {
       Split-Path -Path $PWD.Path -Leaf
     } else { "~" }
   )
+
+  if ($script:IsElevated) {
+    # The root prompt is the *standard* ANSI range, not the bright one the
+    # normal prompt uses, so these are the Dark* names: \e[0;31m / %F{1} ->
+    # DarkRed, \e[0;37m / %F{7} -> Gray, \e[0;90m / %F{8} -> DarkGray. Plain
+    # `Red` here would be bright red (\e[0;91m), a shade too light — the same
+    # mismatch called out in CLAUDE.md's colour-mapping note.
+    Write-Host "$script:UserName " -NoNewline -ForegroundColor DarkRed
+    Write-Host $Path -NoNewline -ForegroundColor Gray
+    if ($Branch) { Write-Host " ($Branch)" -NoNewline -ForegroundColor DarkGray }
+    Write-Host " #" -NoNewline -ForegroundColor DarkRed
+    return " "
+  }
 
   Write-Host "λ " -NoNewline -ForegroundColor Cyan
   Write-Host "$script:UserName" -NoNewline -ForegroundColor Red
