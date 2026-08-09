@@ -200,47 +200,6 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-group "Scala JVM wrappers"
-
-# The flag is JDK 24+ only, so it must never be exported globally — an older
-# JVM refuses to start and every Java program on the machine breaks.
-if grep -qE '^[[:space:]]*export[[:space:]]+JAVA_OPTS' cli/.clirc; then
-  bad "cli/.clirc exports JAVA_OPTS globally — breaks every Java app on JDK < 24"
-else
-  ok "the unsafe flag is not exported globally"
-fi
-
-# The probe must be lazy: ~90ms is too slow to pay on every shell start.
-# Calls from inside the wrappers are indented, so only a call at column zero
-# means it runs while the file is being sourced.
-if sed -n '/^_jvm_unsafe_opt()/,/^}/p' cli/.clirc | grep -q 'sun-misc-unsafe-memory-access' \
-   && ! grep -qE '^_jvm_unsafe_opt([[:space:]]|$)' cli/.clirc; then
-  ok "java is probed lazily, not at shell startup"
-else
-  bad "the java probe runs at shell startup"
-fi
-
-if command -v amm >/dev/null 2>&1 && command -v java >/dev/null 2>&1; then
-  n="$(bash -c '. ./cli/.clirc; amm -c "1" 2>&1 | grep -c "sun.misc.Unsafe"' 2>/dev/null)"
-  [ "$n" = "0" ] && ok "amm starts without the sun.misc.Unsafe warning" \
-                 || bad "amm still prints $n sun.misc.Unsafe lines"
-else
-  skip "amm warning check (amm or java not installed)"
-fi
-
-# With the flag unavailable the wrapper must still run the tool, not pass an
-# empty argument or refuse to start.
-if command -v scala >/dev/null 2>&1; then
-  if bash -c '. ./cli/.clirc; _JVM_UNSAFE_PROBED=1; _JVM_UNSAFE_OPT=; scala -version' >/dev/null 2>&1; then
-    ok "wrappers still work when the JDK lacks the flag"
-  else
-    bad "wrapper breaks the tool when the flag is unsupported"
-  fi
-else
-  skip "wrapper fallback check (scala not installed)"
-fi
-
-# ---------------------------------------------------------------------------
 group "Stow ignore files"
 
 # A package-local .stow-local-ignore replaces stow's built-in list rather than

@@ -170,22 +170,6 @@ on top for its permission/size/date/git columns; `bat` uses the built-in
 than hardcoded RGB); `rg` has no color env var at all, so it reads
 `cli/.ripgreprc` via `RIPGREP_CONFIG_PATH`.
 
-### Quieter Scala tools
-
-On JDK 24+ every `amm`, `scala` and `sbt` start opens with four lines of
-
-```
-WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
-WARNING: sun.misc.Unsafe::objectFieldOffset has been called by scala.runtime.LazyVals$
-```
-
-That's [JEP 498](https://openjdk.org/jeps/498) reacting to Scala's `LazyVals`,
-and it's Scala's to fix. `.clirc` wraps the three commands to pass
-`--sun-misc-unsafe-memory-access=allow`, which silences the notice and changes
-nothing else. The flag only exists on JDK 24+, so the wrappers check for it
-once per session before using it — on an older JDK they leave the command
-untouched rather than breaking it.
-
 **macOS / Linux:** [Homebrew](https://brew.sh/).
 
 **Windows:** [Windows Terminal](https://github.com/microsoft/terminal),

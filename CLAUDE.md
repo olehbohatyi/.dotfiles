@@ -185,38 +185,6 @@ straightforward env var:
   bat out of the shared palette.
 - **rg** has no color env var at all, which is why `cli/.ripgreprc` exists.
 
-## Scala tooling and the sun.misc.Unsafe warning
-
-JDK 24+ implements JEP 498 and prints a four-line deprecation warning every
-time `scala.runtime.LazyVals` touches `sun.misc.Unsafe` — which is every amm,
-`scala` and sbt start. `.clirc` wraps those three commands to pass
-`--sun-misc-unsafe-memory-access=allow`, which suppresses the notice without
-changing behaviour (`deny` is the value that actually breaks the calls).
-
-Three things about that block are load-bearing:
-
-- **Never `export JAVA_OPTS` with this flag.** It exists only on JDK 24+; an
-  older JVM exits with "Unrecognized option" rather than starting, so a
-  global export would break *every* Java program on a machine pinned to
-  JDK 21 — not just the Scala ones.
-- **The probe is lazy and cached.** It runs `java --sun-misc-unsafe-memory-
-  access=allow -version` the first time one of the wrappers is used, not at
-  shell startup, because that costs ~90ms and would be paid by every new
-  shell. It tests the flag rather than parsing a version number, so it stays
-  correct across whatever JDK a project pins.
-- **The tools disagree about how to take JVM flags.** amm and sbt read
-  `JAVA_OPTS` (amm's launcher is literally `exec java $JAVA_OPTS`), but the
-  `scala` launcher reads no environment variable at all and accepts only
-  `-J<flag>` on the command line — verified against scala 3.3.7, where
-  setting `JAVA_OPTS` changes nothing. Don't collapse the three wrappers
-  into one shared mechanism.
-
-`JDK_JAVA_OPTIONS` looks like a tidier single answer and isn't: the JVM
-announces it with its own `NOTE: Picked up JDK_JAVA_OPTIONS` line, trading
-four lines of noise for one. sbt also reads the flag from a checked-in
-`.sbtopts`/`.jvmopts` as `-J--sun-misc-unsafe-memory-access=allow`, which is
-the right place for it when a build must not depend on the shell.
-
 `RIPGREP_CONFIG_PATH` is the one export that's guarded on the file existing.
 rg treats a missing config path as a hard error and prints `failed to read
 the file specified in RIPGREP_CONFIG_PATH` on *every* invocation instead of
