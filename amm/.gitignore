@@ -1,0 +1,22 @@
+# Allowlist, not a denylist — same reasoning as claude/.gitignore.
+#
+# Ammonite fills ~/.ammonite with history, cache/, .scala-build/ and a
+# per-JDK rt-*.jar that runs to tens of megabytes each. install.sh creates
+# ~/.ammonite before stowing so stow folds into it and that state stays in
+# $HOME, but this is the second line of defence: if the fold guard is ever
+# lost, the whole directory becomes a symlink into this package and the next
+# REPL start commits hundreds of megabytes of JARs. Naming the runtime paths
+# one by one would go stale, so ignore everything and re-include only the
+# three tracked scripts.
+#
+# A directory has to be un-ignored before a file inside it can be, hence the
+# separate `!.ammonite/` line — git never descends into an excluded
+# directory. See https://git-scm.com/docs/gitignore
+
+*
+!.gitignore
+!.stow-local-ignore
+!.ammonite/
+!.ammonite/predef.sc
+!.ammonite/helper.sc
+!.ammonite/import.sc

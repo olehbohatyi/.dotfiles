@@ -78,6 +78,24 @@ if $adopt; then
   exit 0
 fi
 
+# True for a package-relative path that stow will refuse to link, mirroring
+# the patterns every package repeats in its .stow-local-ignore. The backup
+# loop below has to agree with stow about this: it walks the package with
+# find, so without this filter it treats claude/.gitignore as a file destined
+# for ~/.gitignore, moves a real global gitignore into the backup dir, and
+# then stow links nothing in its place. Verified against a scratch $HOME.
+stow_ignored() {
+  case "${1##*/}" in
+    .stow-local-ignore|.gitignore|.gitmodules|.DS_Store|*~) return 0 ;;
+  esac
+  # Stow anchors these three at the package root, so match only a bare
+  # filename — a hypothetical docs/README.md really would get linked.
+  case "$1" in
+    README*|LICENSE*|COPYING) return 0 ;;
+  esac
+  return 1
+}
+
 # Move any real (non-symlink) conflicting file out of the way so a machine
 # that already has its own .bashrc/.zshrc/etc. doesn't lose it silently.
 backed_up=false
@@ -86,6 +104,9 @@ for pkg in "${packages[@]}"; do
   while IFS= read -r -d '' file; do
     rel="${file#"$DOTFILES_DIR"/"$pkg"/}"
     target="$HOME/$rel"
+    # `if` rather than `stow_ignored ... && continue`: under `set -e` a
+    # trailing non-zero in an && list is not reliably exempt.
+    if stow_ignored "$rel"; then continue; fi
     if [ -e "$target" ] && [ ! -L "$target" ]; then
       mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
       mv "$target" "$BACKUP_DIR/$rel"
@@ -97,9 +118,20 @@ done
 
 stow -v -d "$DOTFILES_DIR" -t "$HOME" "${packages[@]}"
 
+# --add after checking, never a bare `git config include.path`: that form
+# fails outright ("cannot overwrite multiple values with a single value") on
+# any ~/.gitconfig that already has more than one include.path — a work +
+# personal conditional-include setup, say. Under `set -euo pipefail` that
+# aborted the script *after* stowing, so the run ended on a git error with no
+# summary. Checking first also makes repeat runs idempotent instead of
+# appending a duplicate include every time.
 if [[ " ${packages[*]} " == *" git "* ]]; then
-  git config --global include.path "$HOME/.aliases"
-  echo "Registered ~/.aliases in ~/.gitconfig (include.path)."
+  if git config --global --get-all include.path 2>/dev/null | grep -qxF "$HOME/.aliases"; then
+    echo "~/.aliases already registered in ~/.gitconfig (include.path)."
+  else
+    git config --global --add include.path "$HOME/.aliases"
+    echo "Registered ~/.aliases in ~/.gitconfig (include.path)."
+  fi
 fi
 
 if $backed_up; then

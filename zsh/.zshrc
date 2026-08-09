@@ -1,5 +1,20 @@
+# Kept byte-identical to the copy in bash/.bashrc — and matching what
+# pwsh/profile.ps1 and amm/.ammonite/predef.sc ask git for, so all four
+# prompts agree on a detached HEAD instead of the shells alone printing
+# "((HEAD detached at abc1234))".
+#
+# One `git rev-parse` rather than `git branch | sed`: no second process, and
+# no cost that scales with the number of branches. Deliberately not moved
+# into cli/.clirc, which is sourced conditionally — a missing .clirc would
+# leave the prompt calling a function that does not exist.
 git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+  local branch
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || return 0
+  if [ "$branch" = "HEAD" ]; then
+    branch=$(git rev-parse --short HEAD 2>/dev/null) || return 0
+  fi
+  [ -n "$branch" ] && printf ' (%s)' "$branch"
+  return 0
 }
 
 setopt PROMPT_SUBST

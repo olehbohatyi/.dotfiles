@@ -26,6 +26,7 @@ cli/              .clirc — modern CLI tool integration, shared by bash+zsh
 claude/.claude/   settings.json — Claude Code settings + permission allowlist
 install.sh        Stow-based installer: bash, zsh, amm, git, cli, claude (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
+test.sh           Syntax checks + regression tests (./test.sh)
 ```
 
 See [CLAUDE.md](CLAUDE.md) for the conventions each of these follows and the
@@ -176,6 +177,18 @@ than hardcoded RGB); `rg` has no color env var at all, so it reads
 [Scoop](https://scoop.sh/), [`PSReadLine`](https://learn.microsoft.com/en-us/powershell/module/psreadline/)
 (tab completion/history, ships with PowerShell 7+), [`gsudo`](https://github.com/gerardog/gsudo)
 (a Windows `sudo`).
+
+## Tests
+
+```bash
+./test.sh
+```
+
+Syntax-checks bash, zsh and PowerShell, then re-tests every bug this repo has
+actually hit — prompt colours matching across shells, escape sequences marked
+zero-width, the dotfile path-splitting traps, and the installer run against a
+throwaway `$HOME`. Only writes inside a temp dir; skips zsh/pwsh checks rather
+than failing if those aren't installed.
 
 ## Roadmap
 

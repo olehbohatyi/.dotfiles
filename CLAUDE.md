@@ -63,11 +63,17 @@ full shape including the git segment. Ammonite gets there through fansi
 the same bright codes but closes each span with `\e[39m` instead of leaving
 the color sticky the way the bash/zsh strings do — same result on screen.
 
-One deliberate difference, inherited from `profile.ps1`: on a detached HEAD,
-bash/zsh print `((HEAD detached at abc1234))` because they post-process
-`git branch` with sed, while pwsh and Ammonite ask git directly and fall
-back to the short SHA, giving `(abc1234)`. The shells are the odd ones out
-here; don't "fix" the other two to match them.
+All four resolve the branch identically: `git rev-parse --abbrev-ref HEAD`,
+falling back to `git rev-parse --short HEAD` when that returns the literal
+`HEAD`, so a detached HEAD reads `(abc1234)` everywhere and a directory
+outside any repo shows no segment at all. bash/zsh used to pipe `git branch`
+through sed, which cost a second process, scaled with the branch count, and
+printed `((HEAD detached at abc1234))` — don't reintroduce it.
+
+The shells keep their own copy of `git_branch` rather than sharing one from
+`cli/.clirc`, because that file is sourced conditionally (`[ -f ~/.clirc ]`)
+and a machine without it would leave the prompt calling a function that
+doesn't exist. The two copies must stay byte-identical; `test.sh` checks.
 
 **Escapes must be marked zero-width.** bash wraps every sequence in
 `\[ \]`, zsh in `%{ %}`. These tell readline/zle the bytes occupy no
@@ -256,12 +262,31 @@ one of these flows — it silently drops whichever side didn't win.
 ## Testing changes
 
 ```bash
-bash -n bash/.bashrc bash/.bash_profile cli/.clirc install.sh
+./test.sh
+```
+
+Runs the syntax checks for all three shells plus a regression test for every
+bug that has actually bitten this repo: prompt colour parity between bash and
+zsh, escapes wrapped zero-width, no `%F{n}`, TERM-independence, `git_branch`
+not drifting between its two copies, the `.baseName`/`.BaseName` traps, ignore
+files not drifting, and the installer against a scratch `$HOME`. It writes
+only inside `mktemp -d`, needs no network, and skips optional tools (zsh,
+pwsh) rather than failing when they're absent.
+
+**Add a case to `test.sh` for any bug you fix here.** Every check in it
+exists because something broke first, which is what makes it worth running.
+Confirm a new check actually fails against the unfixed code before trusting
+it — three of the original checks passed for the wrong reason (they were
+matching the explanatory comments rather than the code), and only a
+deliberate mutation caught that.
+
+The individual commands, if you want to run one directly:
+
+```bash
+bash -n bash/.bashrc bash/.bash_profile cli/.clirc install.sh test.sh
 zsh -n zsh/.zshrc cli/.clirc
 ```
 
-`pwsh` is available locally — use it rather than skipping PowerShell
-checks:
 ```bash
 pwsh -NoProfile -Command '$e=$null;$t=$null
 [System.Management.Automation.Language.Parser]::ParseFile("pwsh/profile.ps1",[ref]$t,[ref]$e) | Out-Null
