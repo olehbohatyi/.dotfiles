@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEFAULT_PACKAGES=(bash zsh amm git cli claude)
+DEFAULT_PACKAGES=(bash zsh amm git cli)
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 usage() {
@@ -13,7 +13,7 @@ Usage: ./install.sh [--adopt] [package ...]
 
 Symlinks this repo's config files into $HOME using GNU Stow.
 
-  (no args)   Install all packages: bash zsh amm git cli claude
+  (no args)   Install all packages: bash zsh amm git cli
   package...  Install only the named packages, e.g. ./install.sh zsh git
   --adopt     Pull existing real files already in $HOME into the repo
               instead of backing them up. Use this when you want to keep
@@ -58,16 +58,14 @@ packages=("${DEFAULT_PACKAGES[@]}")
 # Some tools keep machine-local runtime state in the same directory as their
 # config. If that directory doesn't exist yet, stow symlinks the *whole*
 # directory into the repo and everything the tool writes afterwards lands in
-# git — Claude Code's sessions and conversation transcripts, Ammonite's
-# history, cache/ and rt-*.jar files (hundreds of MB). Creating the
-# directory first forces stow to fold into it instead, linking only the
-# tracked files. Verified both ways against a scratch $HOME; see CLAUDE.md.
-# Plain case/esac rather than an associative array so this still runs on the
-# bash 3.2 that ships with macOS.
+# git — Ammonite's history, cache/ and rt-*.jar files (hundreds of MB).
+# Creating the directory first forces stow to fold into it instead, linking
+# only the tracked files. Verified both ways against a scratch $HOME; see
+# CLAUDE.md. Plain case/esac rather than an associative array so this still
+# runs on the bash 3.2 that ships with macOS.
 for pkg in "${packages[@]}"; do
   case "$pkg" in
-    claude) mkdir -p "$HOME/.claude" ;;
-    amm)    mkdir -p "$HOME/.ammonite" ;;
+    amm) mkdir -p "$HOME/.ammonite" ;;
   esac
 done
 
@@ -81,7 +79,7 @@ fi
 # True for a package-relative path that stow will refuse to link, mirroring
 # the patterns every package repeats in its .stow-local-ignore. The backup
 # loop below has to agree with stow about this: it walks the package with
-# find, so without this filter it treats claude/.gitignore as a file destined
+# find, so without this filter it treats amm/.gitignore as a file destined
 # for ~/.gitignore, moves a real global gitignore into the backup dir, and
 # then stow links nothing in its place. Verified against a scratch $HOME.
 stow_ignored() {

@@ -203,11 +203,9 @@ fi
 group "Stow ignore files"
 
 # A package-local .stow-local-ignore replaces stow's built-in list rather than
-# extending it, so each package repeats the full pattern set. claude/ is the
-# one intentional exception: it is an allowlist.
+# extending it, so each package repeats the full pattern set.
 ref_ignore="bash/.stow-local-ignore"
 for f in */.stow-local-ignore; do
-  case "$f" in claude/*) continue ;; esac
   if cmp -s "$ref_ignore" "$f"; then
     ok "$f matches $ref_ignore"
   else
@@ -215,16 +213,10 @@ for f in */.stow-local-ignore; do
   fi
 done
 
-# The allowlist only works if .claude/ is un-ignored before settings.json is
-# re-included — git will not descend into an excluded directory.
-if grep -qE '^\!\.claude/$' claude/.gitignore && grep -qE '^\!\.claude/settings\.json$' claude/.gitignore; then
-  ok "claude/.gitignore un-ignores .claude/ before settings.json"
-else
-  bad "claude/.gitignore allowlist is missing a step"
-fi
-
-# Same allowlist shape for amm — the fold guard is the real protection, this
-# is the backstop that keeps rt-*.jar out of git if the guard is ever lost.
+# The allowlist only works if .ammonite/ is un-ignored before the scripts
+# are re-included — git will not descend into an excluded directory. The
+# fold guard in install.sh is the real protection; this is the backstop
+# that keeps rt-*.jar out of git if that guard is ever lost.
 if grep -qE '^\!\.ammonite/$' amm/.gitignore && grep -qE '^\!\.ammonite/predef\.sc$' amm/.gitignore; then
   ok "amm/.gitignore un-ignores .ammonite/ before the scripts"
 else
@@ -248,27 +240,21 @@ group "Installer (against a scratch \$HOME)"
 
 # Stow only folds into a directory that already exists; otherwise it symlinks
 # the whole thing into the repo and the tool's runtime state lands in git.
-for pkg in claude amm; do
-  h="$TMPROOT/fold-$pkg"; mkdir -p "$h"
-  HOME="$h" ./install.sh "$pkg" >/dev/null 2>&1
-  case "$pkg" in
-    claude) d="$h/.claude" ;;
-    amm)    d="$h/.ammonite" ;;
-  esac
-  if [ -d "$d" ] && [ ! -L "$d" ]; then
-    ok "$pkg: target stays a real directory (folded, not whole-dir symlink)"
-  else
-    bad "$pkg: $d is a symlink — runtime state would be written into the repo"
-  fi
-done
+h="$TMPROOT/fold-amm"; mkdir -p "$h"
+HOME="$h" ./install.sh amm >/dev/null 2>&1
+if [ -d "$h/.ammonite" ] && [ ! -L "$h/.ammonite" ]; then
+  ok "amm: target stays a real directory (folded, not whole-dir symlink)"
+else
+  bad "amm: $h/.ammonite is a symlink — runtime state would be written into the repo"
+fi
 
 # Files stow ignores must not be swept into the backup dir, or a real global
 # ~/.gitignore disappears and nothing is linked in its place.
 h="$TMPROOT/gitignore"; mkdir -p "$h"
 printf 'node_modules/\n' > "$h/.gitignore"
-HOME="$h" ./install.sh claude >/dev/null 2>&1
+HOME="$h" ./install.sh amm >/dev/null 2>&1
 if [ -f "$h/.gitignore" ] && [ ! -L "$h/.gitignore" ] && grep -q node_modules "$h/.gitignore"; then
-  ok "a real ~/.gitignore survives installing claude"
+  ok "a real ~/.gitignore survives installing amm"
 else
   bad "~/.gitignore was moved aside for a link that never comes"
 fi

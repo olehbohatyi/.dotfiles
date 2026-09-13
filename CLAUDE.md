@@ -18,8 +18,7 @@ pwsh/             profile.ps1 (not stowed — see below)
 git/              .aliases — included from ~/.gitconfig via include.path
 cli/              .clirc — modern CLI tool integration, sourced by bash+zsh
                   .ripgreprc — rg colors, loaded via RIPGREP_CONFIG_PATH
-claude/.claude/   settings.json — Claude Code config (see below)
-install.sh        Stow installer: bash/zsh/amm/git/cli/claude (macOS/Linux)
+install.sh        Stow installer: bash/zsh/amm/git/cli (macOS/Linux)
 install.ps1       Profile installer for pwsh/profile.ps1 (any OS)
 ```
 
@@ -192,50 +191,31 @@ searching — so an unguarded export would break `rg` on any machine that
 hasn't stowed `cli` yet. That's the same "never break a fresh clone's shell"
 rule the `command -v` guards follow; keep the `[ -f ]` test.
 
-## claude/ — Claude Code settings
+## amm/ — Ammonite's runtime directory
 
-Only `settings.json` is tracked. Everything else Claude Code puts in
-`~/.claude` (`sessions/`, `cache/`, `telemetry/`, `projects/`, `backups/`,
-`shell-snapshots/`, ...) is machine-local runtime state, and `projects/`
-holds full conversation transcripts — none of it belongs in git.
-
-**`install.sh` must `mkdir -p ~/.claude` before stowing this package.** Stow
-only folds into a target directory that already exists; on a fresh machine
-where `~/.claude` is absent it symlinks the *whole directory* into the repo,
-and every subsequent session then writes its transcripts into git. Verified
-both ways against a scratch `$HOME` — don't remove that guard.
-
-`amm` needs the identical guard on `~/.ammonite` and gets it from the same
-`case` block in `install.sh`. Ammonite fills that directory with `history`,
-`cache/`, `.scala-build/` and per-JDK `rt-*.jar` files that run to hundreds
-of megabytes, so a missed fold there doesn't just leak state — it commits
-JARs. Any future package whose target directory is *also* the tool's runtime
-directory belongs in that block too.
+**`install.sh` must `mkdir -p ~/.ammonite` before stowing this package.**
+Stow only folds into a target directory that already exists; on a fresh
+machine where `~/.ammonite` is absent it symlinks the *whole directory* into
+the repo, and Ammonite then writes `history`, `cache/`, `.scala-build/` and
+per-JDK `rt-*.jar` files (hundreds of MB) straight into git. Verified both
+ways against a scratch `$HOME` — don't remove that guard. Any future package
+whose target directory is *also* the tool's runtime directory belongs in the
+same `case` block.
 
 Both `.gitignore` and `.stow-local-ignore` here are **allowlists** — ignore
-everything, then re-include only `settings.json` (plus the two ignore files
-themselves, for git). Don't convert either back into a list of runtime
-directory names: a denylist goes stale the moment Claude Code writes
-somewhere new, and the thing leaking would be conversation transcripts.
-`settings.local.json`, Claude Code's machine-local override file, is covered
-by the same blanket rule rather than being named.
+everything, then re-include only the three tracked scripts (plus the two
+ignore files themselves, for git). Don't convert either back into a list of
+runtime file/directory names: a denylist goes stale the moment the tool
+writes somewhere new.
 
-Two things that make the allowlists work, both verified against a scratch
-`$HOME` and with `git check-ignore -v`:
+Two things that make the allowlist work, verified against a scratch `$HOME`
+and with `git check-ignore -v`:
 
-- git won't descend into an excluded directory, so `.claude/` has to be
-  un-ignored on its own line before `!.claude/settings.json` can match.
-- Stow's ignore patterns are Perl regexes, so the negative lookahead
-  `^/\.claude/(?!settings\.json$).*` is valid. It only covers paths *under*
-  `.claude/`, so the standard default patterns above it are still load-
-  bearing — without them a stray `claude/.DS_Store` gets symlinked into
-  `$HOME`.
-
-Permission rules use prefix-wildcard matching, so `Bash(git *)` would also
-match `git push` and `git reset --hard`. The allowlist therefore names
-read-only subcommands individually (`Bash(git log *)`, `Bash(git status)`)
-rather than wildcarding the whole command — keep it that way when adding
-entries.
+- git won't descend into an excluded directory, so `.ammonite/` has to be
+  un-ignored on its own line before `!.ammonite/predef.sc` can match.
+- The standard default patterns in `.stow-local-ignore` are still
+  load-bearing here — without them a stray `.DS_Store` next to the tracked
+  scripts gets symlinked into `$HOME`.
 
 ## Stow mirrors the filesystem, not git
 
